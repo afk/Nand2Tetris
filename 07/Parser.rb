@@ -3,9 +3,9 @@ class Parser
   ONE_ARG = 1
   TWO_ARG = 2
 
-  def initialize(filename)
+  def initialize(filename, code_handler)
     @lines = File.readlines(filename)
-    @code_writer = CodeWriter.new
+    @code_handler = code_handler
 
     @lines.map! { |line|
       line.sub!(/\/\/.*$/, '')
@@ -17,17 +17,17 @@ class Parser
       @line = line
 
       if commandType == ZERO_ARG
-        @code_writer.send line
+        @code_handler.send line
       elsif commandType == ONE_ARG
-        @code_writer.send cmd, arg1
+        @code_handler.send cmd, arg1
       elsif commandType == TWO_ARG
-        @code_writer.send cmd, arg1, arg2
+        @code_handler.send cmd, arg1, arg2
       end
     }
   end
 
   def get_output
-    @code_writer.get_output
+    @code_handler.get_output
   end
 
   def commandType
