@@ -1,7 +1,7 @@
 class CodeWriter
   def initialize
     @output_lines = Array.new
-    @lable_nr = 1
+    @label_nr = 1
   end
 
   def get_output
@@ -30,18 +30,19 @@ class CodeWriter
     c_instruction('D', 'M')
     dec_sp
     load_sp
-    c_instruction('D', 'A-D')
-    lable_eq = "LABLE#{@lable_nr += 1}"
-    a_instruction(lable_eq)
+    c_instruction('D', 'M-D')
+    label_true = "LABEL#{@label_nr += 1}"
+    a_instruction(label_true)
     c_instruction('', 'D', 'JEQ')
     load_sp
     c_instruction('M', '0')
-    lable_ne = "LABLE#{@lable_nr += 1}"
-    a_instruction(lable_ne)
+    label_false = "LABEL#{@label_nr += 1}"
+    a_instruction(label_false)
+    c_instruction('', '0', 'JMP')
+    label(label_true)
     load_sp
-    lable(lable_eq)
     c_instruction('M', '-1')
-    lable(lable_ne)
+    label(label_false)
     inc_sp
   end
 
@@ -51,18 +52,19 @@ class CodeWriter
     c_instruction('D', 'M')
     dec_sp
     load_sp
-    c_instruction('D', 'A-D')
-    lable_eq = "LABLE#{@lable_nr += 1}"
-    a_instruction(lable_eq)
+    c_instruction('D', 'M-D')
+    label_true = "LABEL#{@label_nr += 1}"
+    a_instruction(label_true)
     c_instruction('', 'D', 'JGT')
     load_sp
     c_instruction('M', '0')
-    lable_ne = "LABLE#{@lable_nr += 1}"
-    a_instruction(lable_ne)
+    label_false = "LABEL#{@label_nr += 1}"
+    a_instruction(label_false)
+    c_instruction('', '0', 'JMP')
+    label(label_true)
     load_sp
-    lable(lable_eq)
     c_instruction('M', '-1')
-    lable(lable_ne)
+    label(label_false)
     inc_sp
   end
 
@@ -72,18 +74,19 @@ class CodeWriter
     c_instruction('D', 'M')
     dec_sp
     load_sp
-    c_instruction('D', 'A-D')
-    lable_eq = "LABLE#{@lable_nr += 1}"
-    a_instruction(lable_eq)
+    c_instruction('D', 'M-D')
+    label_true = "LABEL#{@label_nr += 1}"
+    a_instruction(label_true)
     c_instruction('', 'D', 'JLT')
     load_sp
     c_instruction('M', '0')
-    lable_ne = "LABLE#{@lable_nr += 1}"
-    a_instruction(lable_ne)
+    label_false = "LABEL#{@label_nr += 1}"
+    a_instruction(label_false)
+    c_instruction('', '0', 'JMP')
+    label(label_true)
     load_sp
-    lable(lable_eq)
     c_instruction('M', '-1')
-    lable(lable_ne)
+    label(label_false)
     inc_sp
   end
 
@@ -101,6 +104,7 @@ class CodeWriter
 
   def push(segment, index)
     send "push_#{segment}", index
+    inc_sp
   end
 
   def push_argument(index)
@@ -139,6 +143,7 @@ class CodeWriter
   end
 
   def pop(segment, index)
+    dec_sp
     send "pop_#{segment}", index
   end
 
@@ -210,14 +215,12 @@ class CodeWriter
     c_instruction('D', 'A')
     load_sp
     c_instruction('M', 'D')
-    inc_sp
   end
 
   def push_reg_to_stack(reg = 'D')
     c_instruction('D', reg) unless reg == 'D'
     load_sp
     c_instruction('M', reg)
-    inc_sp
   end
 
   def push_mem_to_stack(seg, index)
@@ -230,7 +233,7 @@ class CodeWriter
   end
 
   def pop_sp_to_mem(seg, index = 0)
-    if index
+    if index != '0'
       a_instruction(index)
         c_instruction('D', 'A')
       a_instruction(seg)
@@ -246,12 +249,13 @@ class CodeWriter
       load_sp
         c_instruction('D', 'M')
       a_instruction(seg)
+        c_instruction('A', 'M')
         c_instruction('M', 'D')
     end
   end
 
   def pop_sp_to_reg(reg, index)
-    if index
+    if index != '0'
       a_instruction(index)
         c_instruction('D', 'A')
       a_instruction(reg)
@@ -300,8 +304,8 @@ class CodeWriter
     @output_lines.push line
   end
 
-  def lable(to_lable)
-    @output_lines.push "(#{to_lable})"
+  def label(to_label)
+    @output_lines.push "(#{to_label})"
   end
 
   def static_symbol(var)

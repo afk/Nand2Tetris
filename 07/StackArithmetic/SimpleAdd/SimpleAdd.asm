@@ -21,9 +21,6 @@ D=M
 M=M-1
 @SP
 A=M
-D=D+A
-@SP
-A=M
-M=D
+M=D+M
 @SP
 M=M+1

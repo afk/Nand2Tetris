@@ -5,16 +5,12 @@ A=M
 M=D
 @SP
 M=M+1
-@0
-D=A
-@LCL
-D=D+M
-@R13
-M=D
+@SP
+M=M-1
 @SP
 A=M
 D=M
-@R13
+@LCL
 A=M
 M=D
 @21
@@ -31,6 +27,8 @@ A=M
 M=D
 @SP
 M=M+1
+@SP
+M=M-1
 @2
 D=A
 @ARG
@@ -43,6 +41,8 @@ D=M
 @R13
 A=M
 M=D
+@SP
+M=M-1
 @1
 D=A
 @ARG
@@ -62,6 +62,8 @@ A=M
 M=D
 @SP
 M=M+1
+@SP
+M=M-1
 @6
 D=A
 @THIS
@@ -88,6 +90,8 @@ A=M
 M=D
 @SP
 M=M+1
+@SP
+M=M-1
 @5
 D=A
 @THAT
@@ -100,6 +104,8 @@ D=M
 @R13
 A=M
 M=D
+@SP
+M=M-1
 @2
 D=A
 @THAT
@@ -119,6 +125,8 @@ A=M
 M=D
 @SP
 M=M+1
+@SP
+M=M-1
 @6
 D=A
 @5
@@ -236,7 +244,7 @@ A=D+A
 D=M
 @SP
 A=M
-M=D
+M=M
 @SP
 M=M+1
 @SP
