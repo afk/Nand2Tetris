@@ -1,0 +1,107 @@
+class Ball {
+    field int x, y;
+    field int sizeX, sizeY;
+    field int dirX, dirY;
+
+    constructor Ball new() {
+        let x = 256;
+        let y = 128;
+
+        let sizeX = 5;
+        let sizeY = 5;
+
+        let dirX = 1;
+        let dirY = 1;
+
+        do draw();
+
+        return this;
+    }
+
+    /** Deallocates the object's memory. */
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method int getLeftBound() {
+        return x;
+    }
+
+    method int getRightBound() {
+        return x + sizeX;
+    }
+
+    method int getUpperBound() {
+        return y;
+    }
+
+    method int getLowerBound() {
+        return y + sizeY;
+    }
+
+    /** Draws the square on the screen. */
+    method void draw() {
+        do Screen.setColor(true);
+        do Screen.drawRectangle(x, y, x + sizeX, y + sizeY);
+        return;
+    }
+
+    /** Erases the square from the screen. */
+    method void erase() {
+        do Screen.setColor(false);
+        do Screen.drawRectangle(x, y, x + sizeX, y + sizeY);
+        return;
+    }
+
+    method void move() {
+        do erase();
+
+/*
+        if (x = 0) {
+            let dirX = 1;
+        }
+
+        if (x = 506) {
+            let dirX = 0;
+        }
+*/
+
+        if (y = 0) {
+            let dirY = 1;
+        }
+
+        if (y = 250) {
+            let dirY = 0;
+        }
+
+        if (dirX = 1) {
+            let x = x + 1;
+        }
+        else {
+            let x = x - 1;
+        }
+
+        if (dirY = 1) {
+            let y = y + 1;
+        }
+        else {
+            let y = y - 1;
+        }
+
+        do draw();
+        do Sys.wait(10);
+
+        return;
+    }
+
+    method void changeDir() {
+        if (dirX = 1) {
+            let dirX = 0;
+        } else {
+            let dirX = 1;
+        }
+
+        return;
+    }
+}

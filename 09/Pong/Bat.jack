@@ -1,0 +1,93 @@
+class Bat {
+    field int x, y;
+    field int scorePos;
+    field int sizeX, sizeY;
+    field int score;
+
+    constructor Bat new(int Ax, int Ay, int AscorePos) {
+        let x = Ax;
+        let y = Ay;
+        let scorePos = AscorePos;
+
+        let sizeX = 5;
+        let sizeY = 40;
+
+        let score = 0;
+
+        do draw();
+
+        do Output.moveCursor(22, scorePos);
+        do Output.printString("Score: 0");
+
+        return this;
+    }
+
+    /** Deallocates the object's memory. */
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method int getLeftBound() {
+        return x;
+    }
+
+    method int getRightBound() {
+        return x + sizeX;
+    }
+
+    method int getUpperBound() {
+        return y;
+    }
+
+    method int getLowerBound() {
+        return y + sizeY;
+    }
+
+    method int getScore() {
+        return score;
+    }
+
+    /** Draws the square on the screen. */
+    method void draw() {
+        do Screen.setColor(true);
+        do Screen.drawRectangle(x, y, x + sizeX, y + sizeY);
+        return;
+    }
+
+    /** Erases the square from the screen. */
+    method void erase() {
+        do Screen.setColor(false);
+        do Screen.drawRectangle(x, y, x + sizeX, y + sizeY);
+        return;
+    }
+
+    /** Moves up by 2 pixels. */
+    method void moveUp() {
+        if (y > 1) {
+            do erase();
+            let y = y - 2;
+            do draw();
+        }
+        return;
+    }
+
+    /** Moves down by 2 pixels. */
+    method void moveDown() {
+        if ((y + sizeY) < 254) {
+            do erase();
+            let y = y + 2;
+            do draw();
+        }
+        return;
+    }
+
+    method void score() {
+        let score = score + 1;
+
+        do Output.moveCursor(22, scorePos + 7);
+        do Output.printInt(score);
+
+        return;
+    }
+}

@@ -1,0 +1,77 @@
+class PongGame {
+    field Bat leftBat;
+    field Bat rightBat;
+    field Ball ball;
+
+    constructor PongGame new() {
+        let leftBat = Bat.new(0, 110, 1);
+        let rightBat = Bat.new(505, 110, 55);
+        let ball = Ball.new();
+
+        return this;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method void run() {
+        var char key;
+        var boolean exit;
+
+        let exit = false;
+
+        while (~exit) {
+            let key = Keyboard.keyPressed();
+
+            do ball.move();
+
+            // q pressed
+            if (key = 81) {
+                let exit = true;
+            }
+
+            // w pressed
+            if (key = 87) {
+                do leftBat.moveUp();
+            }
+            // s pressed
+            if (key = 83) {
+                do leftBat.moveDown();
+            }
+
+            // up pressed
+            if (key = 131) {
+                do rightBat.moveUp();
+            }
+            // down pressed
+            if (key = 133) {
+                do rightBat.moveDown();
+            }
+
+            // Check colission
+            if (ball.getLeftBound() < (leftBat.getRightBound() + 2)) {
+                if ((ball.getUpperBound() > leftBat.getUpperBound()) & (ball.getLowerBound() < leftBat.getLowerBound())) {
+                    do ball.changeDir();
+                } else {
+                    do rightBat.score();
+                    let exit = true;
+                }
+            }
+
+            if (ball.getRightBound() > (rightBat.getLeftBound() - 2)) {
+                if ((ball.getUpperBound() > rightBat.getUpperBound()) & (ball.getLowerBound() < rightBat.getLowerBound())) {
+                    do ball.changeDir();
+                } else {
+                    do leftBat.score();
+                    let exit = true;
+                }
+            }
+
+            do Sys.wait(5);
+        }
+
+        return;
+    }
+}
