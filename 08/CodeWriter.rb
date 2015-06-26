@@ -1,7 +1,7 @@
 class CodeWriter
   def initialize
     @output_lines = Array.new
-    @lable_nr = 1
+    @label_nr = 0
   end
 
   def get_output
@@ -24,67 +24,38 @@ class CodeWriter
     comp_one_value_from_sp('-D')
   end
 
-  def eq
+  def compare(comp)
     dec_sp
     load_sp
     c_instruction('D', 'M')
     dec_sp
     load_sp
-    c_instruction('D', 'A-D')
-    lable_eq = "LABLE#{@lable_nr += 1}"
-    a_instruction(lable_eq)
-    c_instruction('', 'D', 'JEQ')
+    c_instruction('D', 'M-D')
+    label_eq = "LABEL#{@label_nr += 1}"
+    a_instruction(label_eq)
+    c_instruction('', 'D', comp)
     load_sp
     c_instruction('M', '0')
-    lable_ne = "LABLE#{@lable_nr += 1}"
-    a_instruction(lable_ne)
+    label_ne = "LABEL#{@label_nr += 1}"
+    a_instruction(label_ne)
+    c_instruction('', '0', 'JMP')
+    label(label_eq)
     load_sp
-    lable(lable_eq)
     c_instruction('M', '-1')
-    lable(lable_ne)
+    label(label_ne)
     inc_sp
+  end
+
+  def eq
+    compare('JEQ')
   end
 
   def gt
-    dec_sp
-    load_sp
-    c_instruction('D', 'M')
-    dec_sp
-    load_sp
-    c_instruction('D', 'A-D')
-    lable_eq = "LABLE#{@lable_nr += 1}"
-    a_instruction(lable_eq)
-    c_instruction('', 'D', 'JGT')
-    load_sp
-    c_instruction('M', '0')
-    lable_ne = "LABLE#{@lable_nr += 1}"
-    a_instruction(lable_ne)
-    load_sp
-    lable(lable_eq)
-    c_instruction('M', '-1')
-    lable(lable_ne)
-    inc_sp
+    compare('JGT')
   end
 
   def lt
-    dec_sp
-    load_sp
-    c_instruction('D', 'M')
-    dec_sp
-    load_sp
-    c_instruction('D', 'A-D')
-    lable_eq = "LABLE#{@lable_nr += 1}"
-    a_instruction(lable_eq)
-    c_instruction('', 'D', 'JLT')
-    load_sp
-    c_instruction('M', '0')
-    lable_ne = "LABLE#{@lable_nr += 1}"
-    a_instruction(lable_ne)
-    load_sp
-    lable(lable_eq)
-    c_instruction('M', '-1')
-    lable(lable_ne)
-    inc_sp
+    compare('JLT')
   end
 
   def and
@@ -129,7 +100,7 @@ class CodeWriter
   end
 
   def push_pointer(index)
-    reg_index_offset('3', index)
+    a_reg_index_offset('3', index)
     push_reg_to_stack('M')
   end
 
@@ -139,6 +110,7 @@ class CodeWriter
   end
 
   def pop(segment, index)
+    dec_sp
     send "pop_#{segment}", index
   end
 
@@ -178,6 +150,108 @@ class CodeWriter
     pop_sp_to_reg('5', index)
   end
 
+  def label(label)
+    @output_lines.push "(#{label})"
+  end
+
+  def goto(label)
+    a_instruction(label)
+    c_instruction('', '0', 'JMP')
+  end
+
+  def if_goto(label)
+    pop_sp_to_reg('D')
+    a_instruction(label)
+    c_instruction('', 'D', 'JNE')
+  end
+
+  def call(f, n)
+    ret = "LABEL#{@label_nr += 1}"
+    push('constant', ret)
+
+    a_reg_index_offset('LCL')
+    push_reg_to_stack('M')
+
+    a_reg_index_offset('ARG')
+    push_reg_to_stack('M')
+
+    a_reg_index_offset('THIS')
+    push_reg_to_stack('M')
+
+    a_reg_index_offset('THAT')
+    push_reg_to_stack('M')
+
+    a_reg_index_offset('SP', -n.to_i-5)
+    c_instruction('D', 'A')
+    a_reg_index_offset('ARG')
+    push_reg_to_stack
+
+    a_instruction('SP')
+    c_instruction('D', 'M')
+    a_instruction('LCL')
+    c_instruction('M', 'D')
+
+    a_instruction(f)
+    c_instruction('', '0', 'JMP')
+
+    label ret
+  end
+
+  def function(f, k)
+    label f
+    (0..k.to_i).each do
+      push('constant', 0)
+    end
+  end
+
+  def return
+    a_instruction('LCL')
+    c_instruction('D', 'M')
+    a_instruction('R14')
+    c_instruction('M', 'D')
+
+    a_instruction('5')
+    c_instruction('A', 'D-A')
+    c_instruction('D', 'M')
+    a_instruction('R15')
+    c_instruction('M', 'D')
+
+    pop('argument', 0)
+
+    a_instruction('ARG')
+    c_instruction('D', 'M')
+    a_instruction('SP')
+    c_instruction('M', 'D+1')
+
+    a_instruction('R14')
+    c_instruction('AM', 'M-1')
+    c_instruction('D', 'M')
+    a_instruction('THAT')
+    c_instruction('M', 'D')
+
+    a_instruction('R14')
+    c_instruction('AM', 'M-1')
+    c_instruction('D', 'M')
+    a_instruction('THIS')
+    c_instruction('M', 'D')
+
+    a_instruction('R14')
+    c_instruction('AM', 'M-1')
+    c_instruction('D', 'M')
+    a_instruction('ARG')
+    c_instruction('M', 'D')
+
+    a_instruction('R14')
+    c_instruction('AM', 'M-1')
+    c_instruction('D', 'M')
+    a_instruction('LCL')
+    c_instruction('M', 'D')
+
+    a_instruction('R15')
+    c_instruction('A', 'M')
+    c_instruction('', '0', 'JMP')
+  end
+
   ### Internal ###
 
   def comp_one_value_from_sp(comp)
@@ -198,7 +272,7 @@ class CodeWriter
     inc_sp
   end
 
-  def a_reg_index_offset(reg, index)
+  def a_reg_index_offset(reg, index = 0)
     a_instruction(index)
     c_instruction('D', 'A')
     a_instruction(reg)
@@ -250,7 +324,7 @@ class CodeWriter
     end
   end
 
-  def pop_sp_to_reg(reg, index)
+  def pop_sp_to_reg(reg, index = 0)
     if index
       a_instruction(index)
         c_instruction('D', 'A')
@@ -298,10 +372,6 @@ class CodeWriter
     end
     #line << ";#{jump}" unless jump.empty?
     @output_lines.push line
-  end
-
-  def lable(to_lable)
-    @output_lines.push "(#{to_lable})"
   end
 
   def static_symbol(var)

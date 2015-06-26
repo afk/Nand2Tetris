@@ -7,11 +7,15 @@ class VMTranslator
       @source = ARGV[0]
       @code_writer = CodeWriter.new
 
+      if File.file? generate_output_filename
+        File.delete generate_output_filename
+      end
+
       if @source =~ /.*\.vm$/
         translate(@source)
       else
         Dir.glob("#{@source}/*.vm") do |vm_file|
-          translate(vm_file)
+          translate(vm_file, generate_output_filename)
         end
       end
 
@@ -21,18 +25,22 @@ class VMTranslator
     end
   end
 
-  def translate(input_file)
+  def translate(input_file, output_file = false)
+    output_file = input_file unless output_file
+
     parser = Parser.new(input_file, @code_writer)
-    File.open(VMTranslator.generate_output_filename(input_file), "w+") do |f|
+
+    File.open(output_file, "a") do |f|
       f.puts(parser.get_output)
     end
   end
 
-  def self.generate_output_filename(input_file)
-    if input_file =~ /.*\.vm$/
-      return input_file.sub('.vm', '.asm')
+  def generate_output_filename
+    if @source =~ /.*\.vm$/
+      return @source.sub('.vm', '.asm')
     else
-      return "#{input_file}.asm"
+      name = /\/([^\/]*)\/$/.match(@source)[1]
+      return "#{@source}#{name}.asm"
     end
   end
 end

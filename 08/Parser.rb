@@ -18,11 +18,11 @@ class Parser
       @line = line
 
       if commandType == ZERO_ARG
-        @code_handler.send line
+        @code_handler.send line.gsub('-', '_')
       elsif commandType == ONE_ARG
-        @code_handler.send cmd, arg1
+        @code_handler.send cmd.gsub('-', '_'), arg1
       elsif commandType == TWO_ARG
-        @code_handler.send cmd, arg1, arg2
+        @code_handler.send cmd.gsub('-', '_'), arg1, arg2
       end
     }
   end
