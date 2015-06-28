@@ -26,7 +26,7 @@ class VMTranslator
   end
 
   def translate(input_file, output_file = false)
-    output_file = input_file unless output_file
+    output_file = generate_output_filename unless output_file
 
     parser = Parser.new(input_file, @code_writer)
 

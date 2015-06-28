@@ -2,14 +2,26 @@ class CodeWriter
   def initialize
     @output_lines = Array.new
     @label_nr = 0
+
+    init
   end
 
   def get_output
-    @output_lines
+    old = @output_lines
+    @output_lines = Array.new
+    old
   end
 
   def filename=(filename)
     @filename = filename
+  end
+
+  def init
+    a_instruction('256')
+    c_instruction('D', 'A')
+    a_instruction('SP')
+    c_instruction('M', 'D')
+    call('Sys.init', 0)
   end
 
   def add
@@ -160,7 +172,9 @@ class CodeWriter
   end
 
   def if_goto(label)
-    pop_sp_to_reg('D')
+    dec_sp
+    load_sp
+    c_instruction('D', 'M')
     a_instruction(label)
     c_instruction('', 'D', 'JNE')
   end
@@ -169,30 +183,29 @@ class CodeWriter
     ret = "LABEL#{@label_nr += 1}"
     push('constant', ret)
 
-    a_reg_index_offset('LCL')
+    a_instruction('LCL')
     push_reg_to_stack('M')
 
-    a_reg_index_offset('ARG')
+    a_instruction('ARG')
     push_reg_to_stack('M')
 
-    a_reg_index_offset('THIS')
+    a_instruction('THIS')
     push_reg_to_stack('M')
 
-    a_reg_index_offset('THAT')
+    a_instruction('THAT')
     push_reg_to_stack('M')
 
     a_reg_index_offset('SP', -n.to_i-5)
     c_instruction('D', 'A')
-    a_reg_index_offset('ARG')
-    push_reg_to_stack
+    a_instruction('ARG')
+    c_instruction('M', 'D')
 
     a_instruction('SP')
     c_instruction('D', 'M')
     a_instruction('LCL')
     c_instruction('M', 'D')
 
-    a_instruction(f)
-    c_instruction('', '0', 'JMP')
+    goto(f)
 
     label ret
   end
@@ -273,10 +286,16 @@ class CodeWriter
   end
 
   def a_reg_index_offset(reg, index = 0)
+    if index < 0
+      index = -index
+      comp = 'M-D'
+    else
+      comp = 'D+A'
+    end
     a_instruction(index)
     c_instruction('D', 'A')
     a_instruction(reg)
-    c_instruction('A', 'D+A')
+    c_instruction('A', comp)
   end
 
   def push_val_to_stack(val)
@@ -290,7 +309,7 @@ class CodeWriter
   def push_reg_to_stack(reg = 'D')
     c_instruction('D', reg) unless reg == 'D'
     load_sp
-    c_instruction('M', reg)
+    c_instruction('M', 'D')
     inc_sp
   end
 
@@ -299,8 +318,7 @@ class CodeWriter
       c_instruction('D', 'A')
     a_instruction(seg)
     c_instruction('A', 'D+M')
-      c_instruction('D', 'M')
-    push_reg_to_stack
+    push_reg_to_stack('M')
   end
 
   def pop_sp_to_mem(seg, index = 0)
@@ -325,7 +343,7 @@ class CodeWriter
   end
 
   def pop_sp_to_reg(reg, index = 0)
-    if index
+    if index != 0
       a_instruction(index)
         c_instruction('D', 'A')
       a_instruction(reg)

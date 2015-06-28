@@ -6,6 +6,8 @@ class Parser
   def initialize(filename, code_handler)
     @lines = File.readlines(filename)
     @code_handler = code_handler
+
+    filename = /\/?([^\/]*)\.vm$/.match(filename)[1]
     @code_handler.filename = filename
 
     @lines.map! { |line|
