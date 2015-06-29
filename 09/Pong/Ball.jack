@@ -3,14 +3,14 @@ class Ball {
     field int sizeX, sizeY;
     field int dirX, dirY;
 
-    constructor Ball new() {
+    constructor Ball new(int AdirX) {
         let x = 256;
         let y = 128;
 
         let sizeX = 5;
         let sizeY = 5;
 
-        let dirX = 1;
+        let dirX = AdirX;
         let dirY = 1;
 
         do draw();
@@ -20,6 +20,7 @@ class Ball {
 
     /** Deallocates the object's memory. */
     method void dispose() {
+        do erase();
         do Memory.deAlloc(this);
         return;
     }

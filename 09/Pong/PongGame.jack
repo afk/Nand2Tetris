@@ -6,7 +6,7 @@ class PongGame {
     constructor PongGame new() {
         let leftBat = Bat.new(0, 110, 1);
         let rightBat = Bat.new(505, 110, 55);
-        let ball = Ball.new();
+        let ball = Ball.new(1);
 
         return this;
     }
@@ -56,7 +56,8 @@ class PongGame {
                     do ball.changeDir();
                 } else {
                     do rightBat.score();
-                    let exit = true;
+                    do ball.dispose();
+                    let ball = Ball.new(1);
                 }
             }
 
@@ -65,7 +66,8 @@ class PongGame {
                     do ball.changeDir();
                 } else {
                     do leftBat.score();
-                    let exit = true;
+                    do ball.dispose();
+                    let ball = Ball.new(0);
                 }
             }
 
