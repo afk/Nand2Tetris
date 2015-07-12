@@ -14,25 +14,110 @@ class Math {
 
     /** Returns the absolute value of x. */
     function int abs(int x) {
+      if (x < 0) {
+        return -x;
+      }
+
+      return x;
     }
 
     /** Returns the product of x and y. */
     function int multiply(int x, int y) {
+      var int sum;
+      var boolean neg;
+
+      let sum = 0;
+      let neg = false;
+
+      if ((x = 0) | (y = 0)) {
+        return 0;
+      }
+
+      if ((x < 0) & (y > 0)) {
+        let neg = true;
+      }
+      if ((x > 0) & (y < 0)) {
+        let neg = true;
+      }
+
+      let x = Math.abs(x);
+      let y = Math.abs(y);
+
+      while (x > 0) {
+        let sum = sum + y;
+        let x = x - 1;
+      }
+
+      if (neg) {
+        let sum = -sum;
+      }
+
+      return sum;
     }
 
     /** Returns the integer part of x/y. */
     function int divide(int x, int y) {
+      var int subtractions;
+      var boolean neg;
+
+      if (y = 0) {
+        do Sys.error(3);
+        return -1;
+      }
+
+      let subtractions = 1;
+      let neg = false;
+
+      if ((x < 0) & (y > 0)) {
+        let neg = true;
+      }
+      if ((x > 0) & (y < 0)) {
+        let neg = true;
+      }
+
+      let x = Math.abs(x);
+      let y = Math.abs(y);
+
+      if (y > x) { 
+        return 0;
+      }
+
+      while (x > y) {
+        let x = x - y;
+        let subtractions = subtractions + 1;
+      }
+
+      if (neg) {
+        return -subtractions;
+      }
+
+      return subtractions;
     }
 
     /** Returns the integer part of the square root of x. */
     function int sqrt(int x) {
+      // TODO
+      if (x < 0) {
+        do Sys.error(4);
+        return -1;
+      }
     }
 
     /** Returns the greater number. */
     function int max(int a, int b) {
+      if (a > b) { 
+        return a;
+      }
+
+      return b;
     }
 
     /** Returns the smaller number. */
     function int min(int a, int b) {
+      if (a < b) { 
+        return a;
+      }
+
+      return b;
     }
 }
