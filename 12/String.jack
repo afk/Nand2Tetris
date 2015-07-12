@@ -7,34 +7,79 @@
  * Represents a String object. Implements the String type.
  */
 class String {
+    field Array string;
+    field int length;
+    field int max;
 
     /** Constructs a new empty String with a maximum length of maxLength. */
     constructor String new(int maxLength) {
+      if (maxLength < 0) {
+        do Sys.error(14);
+        return -1;
+      }
+
+      let string = Array.new(max);
+      let length = 0;
+      let max = maxLength;
+
+      return this;
     }
 
     /** De-allocates the string and frees its space. */
     method void dispose() {
+      do string.dispose();
+      return;
     }
 
     /** Returns the current length of this String. */
     method int length() {
+      return length;
     }
 
     /** Returns the character at location j. */
     method char charAt(int j) {
+      if ((j > length) | (j = length)) {
+        do Sys.error(15);
+        return -1;
+      }
+
+      return string[j];
     }
 
     /** Sets the j'th character of this string to be c. */
     method void setCharAt(int j, char c) {
+      if ((j > length) | (j = length)) {
+        do Sys.error(16);
+        return -1;
+      }
+
+      let string[j] = c;
+      return;
     }
 
     /** Appends the character c to the end of this String.
      *  Returns this string as the return value. */
     method String appendChar(char c) {
+      if (length = max) {
+        do Sys.error(17);
+        return -1;
+      }
+
+      let string[length] = c;
+      let length = length + 1;
+
+      return this;
     }
 
     /** Erases the last character from this String. */
     method void eraseLastChar() {
+      if (length = 0) {
+        do Sys.error(18);
+        return -1;
+      }
+
+      let length = length - 1;
+      return;
     }
 
     /** Returns the integer value of this String until the first non
@@ -48,13 +93,16 @@ class String {
 
     /** Returns the new line character. */
     function char newLine() {
+      return 128;
     }
 
     /** Returns the backspace character. */
     function char backSpace() {
+      return 129;
     }
 
     /** Returns the double quote (") character. */
     function char doubleQuote() {
+      return 34;
     }
 }
