@@ -77,9 +77,14 @@ class Keyboard {
       do Output.printString(message);
 
       let c = Keyboard.readChar();
-
       while (~(c = String.newLine())) {
-        do s.appendChar(c);
+        if (c = String.backSpace()) {
+          do s.eraseLastChar();
+        }
+        else {
+          do s.appendChar(c);
+        }
+
         let c = Keyboard.readChar();
       }
 
